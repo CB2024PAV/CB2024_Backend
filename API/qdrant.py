@@ -46,10 +46,10 @@ def write_qdrant_data():
         return {"success":False,"message":str(e),"data":{}}
 
 @qdrant_api.route("/read_qdrant_data", methods=['GET'])
-def read_qdrant_data():
+def read_qdrant_data(user=" "):
     usr = str(request.args.get('user'))
     try:
-        docs = db.similarity_search_with_score(query=" ",filter={"usr":usr})
+        docs = db.similarity_search_with_score(query="",filter={"usr":usr},k=10)
         response = []
         for doc in docs:
             response.append({doc[0].metadata["id"]:doc[0].page_content})
