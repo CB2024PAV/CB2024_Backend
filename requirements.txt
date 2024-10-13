@@ -1,0 +1,9 @@
+google-cloud-aiplatform
+qdrant-client
+python-dotenv
+langchain
+langchain-community
+langchain-qdrant
+langchain-huggingface
+flask
+google-generativeai
