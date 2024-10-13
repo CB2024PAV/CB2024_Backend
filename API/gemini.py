@@ -32,3 +32,11 @@ def get_good_morning_msg():
     output = llm.invoke(good_morning.format(background = background))
     # print(output.content)
     return {"success":True,"data":output.content,"message":{}}
+
+@gemini_api.route("/get_reply", methods=['GET'])
+def get_reply():
+    usr = str(request.args.get('user'))
+    query = str(request.args.get('query'))
+    background = ""
+    for text in read_qdrant_data(usr,query)["data"]:
+        background += " " + list(text.values())[0]
