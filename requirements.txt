@@ -9,3 +9,5 @@ flask
 google-generativeai
 jsonify
 twelvelabs
+google-cloud-texttospeech
+grpcio
