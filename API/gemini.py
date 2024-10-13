@@ -6,12 +6,31 @@ from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from qdrant import read_qdrant_data
 from datetime import datetime
+from google.cloud import texttospeech
+import base64
 
 gemini_api = Blueprint('gemini_api', __name__)
 
 google_api_key = os.environ.get("GOOGLE_API_KEY")
 load_dotenv()
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'C:/Users/EndUser/Documents/CB2024_Backend/cbh-vap-b0f7b2cb1b55.json'
+client = texttospeech.TextToSpeechClient()
+
+
+def text_to_speech(input_text):
+    synthesis_input = texttospeech.SynthesisInput(text=input_text)
+    
+    voice = texttospeech.VoiceSelectionParams(language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL)
+    audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
+    
+    response = client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
+    
+    audio_content_base64 = base64.b64encode(response.audio_content).decode('utf-8')
+    url = f"data:audio/mp3;base64,{audio_content_base64}"
+    return url
+
 
 def get_chat_response(background, question):
     dt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -92,7 +111,9 @@ def get_good_morning_msg():
     )
 
     output = llm.invoke(good_morning.format(background = background, date=dt))
-    return {"success":True,"data":output.content,"message":{}}
+    url = text_to_speech(output.content)
+
+    return {"success":True, "data":output.content, "video": url, "message":{}}
 
 @gemini_api.route("/get_reply", methods=['GET'])
 def get_reply():
@@ -103,4 +124,5 @@ def get_reply():
         background += " " + list(text.values())[0]
 
     response = get_chat_response(background,question)
-    return {"success":True,"data":response,"message":{}}
+    url = text_to_speech(response)
+    return {"success":True,"data":response, "video": url,"message":{}}
