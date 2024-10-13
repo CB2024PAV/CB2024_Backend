@@ -11,8 +11,37 @@ gemini_api = Blueprint('gemini_api', __name__)
 
 google_api_key = os.environ.get("GOOGLE_API_KEY")
 load_dotenv()
-print(google_api_key)
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+
+def get_chat_response(background, question):
+    dt = date.today()
+
+    chat_prompt = PromptTemplate(
+        input_variables=["background", "question"],
+        template="""
+        {background}
+        
+        Given the above background and context answer the below question. Look for any additional details you need. 
+        Something you might need to know is today's date is {date}. 
+        
+        {question}"""
+    )
+
+    output_int = llm.invoke(chat_prompt.format(background = background, question=question, date=dt))
+
+    final_prompt = PromptTemplate(
+        input_variables=["answer", "question"],
+        template="""
+        Question: {question}
+        Answer: {answer}
+        
+        The answer may or may not be an elaborated version with extra explanation. Can you understand the question and answer and only pick out the main points needed. 
+        Give me ONLY the answer.
+        """
+    )
+
+    output = llm.invoke(final_prompt.format(question=question, answer = output_int))
+    return output.content
 
 @gemini_api.route("/get_good_morning_msg", methods=['GET'])
 def get_good_morning_msg():
@@ -20,6 +49,7 @@ def get_good_morning_msg():
     background = ""
     for text in read_qdrant_data(usr)["data"]:
         background += " " + list(text.values())[0]
+
     good_morning = PromptTemplate(
         input_variables=["background"],
         template="""
@@ -30,13 +60,15 @@ def get_good_morning_msg():
     )
 
     output = llm.invoke(good_morning.format(background = background))
-    # print(output.content)
     return {"success":True,"data":output.content,"message":{}}
 
 @gemini_api.route("/get_reply", methods=['GET'])
 def get_reply():
     usr = str(request.args.get('user'))
-    query = str(request.args.get('query'))
+    question = str(request.args.get('query'))
     background = ""
-    for text in read_qdrant_data(usr,query)["data"]:
+    for text in read_qdrant_data(usr,question,k=4)["data"]:
         background += " " + list(text.values())[0]
+
+    response = get_chat_response(background,question)
+    return {"success":True,"data":response,"message":{}}

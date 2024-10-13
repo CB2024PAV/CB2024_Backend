@@ -46,14 +46,13 @@ def write_qdrant_data():
         return {"success":False,"message":str(e),"data":{}}
 
 @qdrant_api.route("/read_qdrant_data", methods=['GET'])
-def read_qdrant_data(user=" ",query=""):
+def read_qdrant_data(user=" ",query="",k=10):
     usr = str(request.args.get('user'))
     try:
-        docs = db.similarity_search_with_score(query=query,filter={"usr":usr},k=10)
+        docs = db.similarity_search_with_score(query=query,filter={"usr":usr},k=k)
         response = []
         for doc in docs:
             response.append({doc[0].metadata["id"]:doc[0].page_content})
-        print(response)
         return {"success":True,"message":"Successfully read qdrant DB","data":response}
     except Exception as e:
         return {"success":False,"message":str(e),"data":{}}
