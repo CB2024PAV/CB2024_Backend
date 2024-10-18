@@ -5,6 +5,9 @@ from langchain.embeddings import SentenceTransformerEmbeddings
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance
 import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 qdrant_url = os.environ.get('QDRANT_URL')
 qdrant_key = os.environ.get('QDRANT_KEY')

@@ -1,18 +1,21 @@
 from flask import Blueprint,request
-from dotenv import load_dotenv
-import os
 import google.generativeai as genai
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from API.qdrant import read_qdrant_data
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
 # from google.cloud import texttospeech
 # import base64
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 gemini_api = Blueprint('gemini_api', __name__)
 
 google_api_key = os.environ.get("GOOGLE_API_KEY")
-load_dotenv()
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
 
 # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/home/prathik/git/cerebral-hack/CB2024_Backend/API/gcpconfig.json"

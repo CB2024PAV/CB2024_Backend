@@ -2,11 +2,14 @@ from flask import Blueprint,request
 from twelvelabs import TwelveLabs
 import requests
 import os
-import dotenv
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 twelvelabs_api = Blueprint('twelvelabs_api', __name__)
 
 twelve_api_key = os.environ.get("TWELVE_API_KEY")
+print('TWELVE: ', twelve_api_key)
 client = TwelveLabs(api_key=twelve_api_key)
 index = os.environ.get("TWELVE_INDEX")
 
