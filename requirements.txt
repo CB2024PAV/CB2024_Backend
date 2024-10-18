@@ -11,3 +11,5 @@ jsonify
 twelvelabs
 google-cloud-texttospeech
 grpcio
+langchain_google_genai
+flask_cors

@@ -24,6 +24,7 @@ def get_video_url(video_id):
 @twelvelabs_api.route("/search_by_text", methods=['GET'])
 def search_by_text():
     query = request.args.get('query')
+    print(query)
     search_results = client.search.query(
         index_id=index, 
         query_text=query, 
